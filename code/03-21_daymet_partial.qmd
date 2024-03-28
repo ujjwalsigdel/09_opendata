@@ -163,14 +163,14 @@ For that, let's use the **map()** family of functions from the purrr package.
 **WARNING**: the chunk below took about **3 minutes** to run on my laptop.  
 ```{r}
 #extracred <- field %>% 
-  slice(1:5)
+  #slice(1:5)
 #extracred
 ```
 
 
 ```{r}
 daymet_all <- field %>% 
-  slice(1:5) %>% 
+  #slice(1:5) %>% 
   mutate(weather = pmap(list(
     .y = year,
     .site = site,
