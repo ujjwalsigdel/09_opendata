@@ -161,21 +161,53 @@ Now we just need to do that again for the remaining **697** site-years!
 For that, let's use the **map()** family of functions from the purrr package.  
 
 **WARNING**: the chunk below took about **3 minutes** to run on my laptop.  
+```{r}
+#extracred <- field %>% 
+  slice(1:5)
+#extracred
+```
+
 
 ```{r}
-daymet_all 
+daymet_all <- field %>% 
+  slice(1:5) %>% 
+  mutate(weather = pmap(list(
+    .y = year,
+    .site = site,
+    .lat = lat,
+    .lon = lon
+  ),
+  function(.y, .site, .lat, .lon)
+    download_daymet(
+      site = .site,
+      lat = .lat,
+      lon = .lon,
+      start = .y,
+      end = .y,
+      simplify = T,
+      silent = T
+    ) %>% 
+    rename(.year = year,
+           .site = site
+           )
+  ))
 
+daymet_all
 ```
 
 Let's inspect weather data for the first site-year.  
 
 ```{r}
-
+daymet_all$weather[[1]]
 ```
 
 Now let's unnest the weather column.  
 ```{r}
-daymet_all_unnest 
+daymet_all_unnest <- daymet_all %>% 
+  unnest(weather) %>% 
+  pivot_wider(names_from = measurement,
+              values_from = value) %>% 
+  janitor::clean_names()
 
 daymet_all_unnest
 
@@ -190,7 +222,8 @@ Therefore, a best practice here is to pull weather data once and export it to fi
 
 Let's do that below:  
 ```{r}
-
+write_csv(daymet_all_unnest, 
+          "../data/fieldweatherdata.csv")
 ```
 
 
